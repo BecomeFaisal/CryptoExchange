@@ -2,6 +2,7 @@
 import { MarketBar } from "@/app/components/MarketBar";
 import { SwapUI } from "@/app/components/SwapUI";
 import { TradeView } from "@/app/components/TradeView";
+import { AiChat } from "@/app/components/AiChat";
 import { Depth } from "@/app/components/depth/Depth";
 import { Trades } from "@/app/components/Trades";
 import { useParams } from "next/navigation";
@@ -14,6 +15,7 @@ export default function Page() {
             <div className="flex flex-row h-[920px] border-y border-slate-800">
                 <div className="flex flex-col flex-1">
                     <TradeView market={market as string} />
+                    <AiChat market={market as string} />
                 </div>
                 <div className="flex flex-col w-[250px] border-l border-slate-800 overflow-hidden">
                     <div className="flex-1 overflow-hidden">

@@ -8,5 +8,9 @@
 ./week-2/ws/dist
 ./week-2/api/node_modules
 ./week-2/api/dist
+.env
+week-1/day-2/exchange-proxy/.env
 ./week-2/mm/node_modules
 ./week-2/mm/dist
+*.env
+*.env.local
