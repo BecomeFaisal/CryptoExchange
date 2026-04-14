@@ -1,4 +1,4 @@
-import { Ticker } from "./types";
+import { Ticker, Trade } from "./types";
 
 export const BASE_URL = "wss://ws.backpack.exchange/"
 
@@ -32,11 +32,17 @@ export class SignalingManager {
             });
             this.bufferedMessages = [];
         }
-        this.ws.onmessage = (event) => {
-            const message = JSON.parse(event.data);
-            const type = message.data.e;
-            if (this.callbacks[type]) {
-                this.callbacks[type].forEach(({ callback }) => {
+        this.ws.onmessage = (event: MessageEvent) => {
+            try {
+                const message = JSON.parse(event.data);
+                const type = message.data?.e;
+                
+                if (!type || !this.callbacks[type]) {
+                    return;
+                }
+                
+                const callbackList = this.callbacks[type] as Array<{ callback: (data: any) => void; id: string }>;
+                callbackList.forEach(({ callback }) => {
                     if (type === "ticker") {
                         const newTicker: Partial<Ticker> = {
                             lastPrice: message.data.c,
@@ -50,21 +56,35 @@ export class SignalingManager {
                         callback(newTicker);
                    }
                    if (type === "depth") {
-                        // const newTicker: Partial<Ticker> = {
-                        //     lastPrice: message.data.c,
-                        //     high: message.data.h,
-                        //     low: message.data.l,
-                        //     volume: message.data.v,
-                        //     quoteVolume: message.data.V,
-                        //     symbol: message.data.s,
-                        // }
-                        // console.log(newTicker);
-                        // callback(newTicker);
                         const updatedBids = message.data.b;
                         const updatedAsks = message.data.a;
                         callback({ bids: updatedBids, asks: updatedAsks });
                     }
+                   if (type === "trade") {
+                        const newTrade: Trade = {
+                            id: message.data.i,
+                            isBuyerMaker: message.data.m,
+                            price: message.data.p,
+                            quantity: message.data.q,
+                            quoteQuantity: message.data.Q,
+                            timestamp: message.data.T,
+                        }
+                        callback(newTrade);
+                    }
+                   if (type === "candle") {
+                        const candleData = {
+                            open: message.data.o,
+                            high: message.data.h,
+                            low: message.data.l,
+                            close: message.data.c,
+                            time: Math.floor(message.data.st / 1000),
+                            isClosed: message.data.x,
+                        }
+                        callback(candleData);
+                    }
                 });
+            } catch (error) {
+                console.error("Error processing WebSocket message:", error);
             }
         }
     }
@@ -81,15 +101,14 @@ export class SignalingManager {
         this.ws.send(JSON.stringify(messageToSend));
     }
 
-    async registerCallback(type: string, callback: any, id: string) {
+    async registerCallback(type: string, callback: (data: any) => void, id: string) {
         this.callbacks[type] = this.callbacks[type] || [];
         this.callbacks[type].push({ callback, id });
-        // "ticker" => callback
     }
 
     async deRegisterCallback(type: string, id: string) {
         if (this.callbacks[type]) {
-            const index = this.callbacks[type].findIndex(callback => callback.id === id);
+            const index = this.callbacks[type].findIndex((cb: any) => cb.id === id);
             if (index !== -1) {
                 this.callbacks[type].splice(index, 1);
             }

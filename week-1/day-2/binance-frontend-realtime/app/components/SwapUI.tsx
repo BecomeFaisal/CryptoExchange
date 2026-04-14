@@ -32,7 +32,7 @@ export function SwapUI({ market }: {market: string}) {
                                 Price
                             </p>
                             <div className="flex flex-col relative">
-                                <input step="0.01" placeholder="0" className="h-12 rounded-lg border-2 border-solid border-baseBorderLight bg-[var(--background)] pr-12 text-right text-2xl leading-9 text-[$text] placeholder-baseTextMedEmphasis ring-0 transition focus:border-accentBlue focus:ring-0" type="text" value="134.38" />
+                                <input step="0.01" placeholder="0" className="h-12 rounded-lg border-2 border-solid border-baseBorderLight bg-[var(--background)] pr-12 text-right text-2xl leading-9 text-[$text] placeholder-baseTextMedEmphasis ring-0 transition focus:border-accentBlue focus:ring-0" type="text" value="134.38" onChange={() => {}} readOnly />
                                 <div className="flex flex-row absolute right-1 top-1 p-2">
                                     <div className="relative">
                                         <img src="/usdc.webp" className="w-6 h-6" />
@@ -46,7 +46,7 @@ export function SwapUI({ market }: {market: string}) {
                             Quantity
                         </p>
                         <div className="flex flex-col relative">
-                            <input step="0.01" placeholder="0" className="h-12 rounded-lg border-2 border-solid border-baseBorderLight bg-[var(--background)] pr-12 text-right text-2xl leading-9 text-[$text] placeholder-baseTextMedEmphasis ring-0 transition focus:border-accentBlue focus:ring-0" type="text" value="123" />
+                            <input step="0.01" placeholder="0" className="h-12 rounded-lg border-2 border-solid border-baseBorderLight bg-[var(--background)] pr-12 text-right text-2xl leading-9 text-[$text] placeholder-baseTextMedEmphasis ring-0 transition focus:border-accentBlue focus:ring-0" type="text" value="123" onChange={() => {}} readOnly />
                             <div className="flex flex-row absolute right-1 top-1 p-2">
                                 <div className="relative">
                                     <img src="/sol.webp" className="w-6 h-6" />

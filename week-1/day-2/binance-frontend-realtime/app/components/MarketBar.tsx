@@ -1,14 +1,27 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Ticker } from "../utils/types";
+import type { Ticker } from "../utils/types";
 import { getTicker } from "../utils/httpClient";
 import { SignalingManager } from "../utils/SignalingManager";
 
 export const MarketBar = ({market}: {market: string}) => {
     const [ticker, setTicker] = useState<Ticker | null>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        getTicker(market).then(setTicker);
+        const fetchTicker = async () => {
+            try {
+                const data = await getTicker(market);
+                setTicker(data);
+                setLoading(false);
+            } catch (error) {
+                console.error("Error fetching ticker:", error);
+                setLoading(false);
+            }
+        };
+
+        fetchTicker();
+
         SignalingManager.getInstance().registerCallback("ticker", (data: Partial<Ticker>)  =>  setTicker(prevTicker => ({
             firstPrice: data?.firstPrice ?? prevTicker?.firstPrice ?? '',
             high: data?.high ?? prevTicker?.high ?? '',
@@ -28,7 +41,6 @@ export const MarketBar = ({market}: {market: string}) => {
             SignalingManager.getInstance().sendMessage({"method":"UNSUBSCRIBE","params":[`ticker.${market}`]}	);
         }
     }, [market])
-    // 
 
     return <div>
         <div className="flex items-center flex-row relative w-full overflow-hidden border-b border-slate-800">
@@ -36,23 +48,23 @@ export const MarketBar = ({market}: {market: string}) => {
                     <Ticker market={market} />
                     <div className="flex items-center flex-row space-x-8 pl-4">
                         <div className="flex flex-col h-full justify-center">
-                            <p className={`font-medium tabular-nums text-greenText text-md text-green-500`}>${ticker?.lastPrice}</p>
-                            <p className="font-medium text-sm text-sm tabular-nums">${ticker?.lastPrice}</p>
+                            <p className={`font-medium tabular-nums text-greenText text-md text-green-500`}>${ticker?.lastPrice || '-'}</p>
+                            <p className="font-medium text-sm text-sm tabular-nums">${ticker?.lastPrice || '-'}</p>
                         </div>
                         <div className="flex flex-col">
                             <p className={`font-medium text-xs text-slate-400 text-sm`}>24H Change</p>
-                            <p className={` text-sm font-medium tabular-nums leading-5 text-sm text-greenText ${Number(ticker?.priceChange) > 0 ? "text-green-500" : "text-red-500"}`}>{Number(ticker?.priceChange) > 0 ? "+" : ""} {ticker?.priceChange} {Number(ticker?.priceChangePercent)?.toFixed(2)}%</p></div><div className="flex flex-col">
+                            <p className={` text-sm font-medium tabular-nums leading-5 text-sm text-greenText ${Number(ticker?.priceChange) > 0 ? "text-green-500" : "text-red-500"}`}>{Number(ticker?.priceChange) > 0 ? "+" : ""} {ticker?.priceChange || '-'} {Number(ticker?.priceChangePercent)?.toFixed(2)}%</p></div><div className="flex flex-col">
                                 <p className="font-medium text-xs text-slate-400 text-sm">24H High</p>
-                                <p className="text-sm font-medium tabular-nums leading-5 text-sm ">{ticker?.high}</p>
+                                <p className="text-sm font-medium tabular-nums leading-5 text-sm ">{ticker?.high || '-'}</p>
                                 </div>
                                 <div className="flex flex-col">
                                     <p className="font-medium text-xs text-slate-400 text-sm">24H Low</p>
-                                    <p className="text-sm font-medium tabular-nums leading-5 text-sm ">{ticker?.low}</p>
+                                    <p className="text-sm font-medium tabular-nums leading-5 text-sm ">{ticker?.low || '-'}</p>
                                 </div>
                             <button type="button" className="font-medium transition-opacity hover:opacity-80 hover:cursor-pointer text-base text-left" data-rac="">
                                 <div className="flex flex-col">
                                     <p className="font-medium text-xs text-slate-400 text-sm">24H Volume</p>
-                                    <p className="mt-1 text-sm font-medium tabular-nums leading-5 text-sm ">{ticker?.volume}
+                                    <p className="mt-1 text-sm font-medium tabular-nums leading-5 text-sm ">{ticker?.volume || '-'}
                                 </p>
                             </div>
                         </button>
